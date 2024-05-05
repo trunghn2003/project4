@@ -1,31 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { List, Divider, Typography, Grid, Avatar, Card, CardHeader, CardMedia, CardContent } from "@mui/material";
-import models from "../../modelData/models";
+import {
+  List,
+  Divider,
+  Typography,
+  Grid,
+  Avatar,
+  Card,
+  CardHeader,
+  CardMedia,
+  CardContent
+} from "@mui/material";
+import { fetchModel } from "../../lib/fetchModelData"; // Assuming fetchModel is implemented here
 
 const UserPhotos = () => {
-  const [photos, setPhotos] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [user, setUser] = useState(null);
   const { userId } = useParams(); 
 
   useEffect(() => {
-    const userPhotos = models.photoOfUserModel(userId);
-    const userInfo = models.userModel(userId);
-    setPhotos(userPhotos);
-    setUser(userInfo);
-  }, [userId]);
+    const fetchData = async () => {
+      const userPhotos = await fetchModel(`http://localhost:8081/api/photo/photosOfUser/${userId}`);
+      
+      const userInfo = await fetchModel(`http://localhost:8081/api/user/${userId}`);
+      setPhotos(userPhotos || []);
+      setUser(userInfo);
+    };
 
-  let linkToAuthor;
-  if (user) {
-    linkToAuthor = (
-      <Link to={`/users/${user._id}`}>
-        {`${user.first_name} ${user.last_name}`}
-      </Link>
-    );
-  } else {
-    linkToAuthor = <p>Loading...</p>;
-  }
-  return photos ? (
+    fetchData();
+  }, [userId]);
+console.log(photos);
+  const linkToAuthor = user ? (
+    <Link to={`/users/${user._id}`}>
+      {`${user.first_name} ${user.last_name}`}
+    </Link>
+  ) : (
+    <p>Loading...</p>
+  );
+
+  return photos.length ? (
     <Grid justifyContent="center" container spacing={3}>
       {photos.map((photo) => (
         <Grid item xs={6} key={photo._id}>
@@ -33,7 +46,13 @@ const UserPhotos = () => {
             <CardHeader
               title={linkToAuthor}
               subheader={photo.date_time}
-              avatar={<Avatar style={{ backgroundColor: '#FF7F50' }}>A</Avatar>}
+              avatar={
+                user && (
+                  <Avatar style={{ backgroundColor: '#FF7F50' }}>
+                    {user.first_name[0]}{user.last_name[0]}
+                  </Avatar>
+                )
+              }
             />
             <CardMedia
               component="img"

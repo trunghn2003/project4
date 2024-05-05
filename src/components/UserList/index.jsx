@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { List, ListItem, ListItemText } from "@mui/material";
-import models from "../../modelData/models"; 
 import "./styles.css";
+import { fetchModel } from "../../lib/fetchModelData";
 
 class UserList extends React.Component {
   constructor(props) {
@@ -12,8 +12,8 @@ class UserList extends React.Component {
     };
   }
 
-  componentDidMount() {
-      const users = models.userListModel(); 
+  componentDidMount = async ()=> {
+      const users = await fetchModel('http://localhost:8081/api/user/list')
     this.setState({ users });
   }
   render() {

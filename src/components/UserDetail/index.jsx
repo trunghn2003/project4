@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {Grid, Typography, Button} from "@mui/material";
 import { Link } from "react-router-dom";
-import models from '../../modelData/models';
 import "./styles.css";
 import {useParams} from "react-router-dom";
+import { fetchModel } from '../../lib/fetchModelData';
 
 function UserDetail() {
   const { userId } = useParams();
@@ -12,8 +12,9 @@ function UserDetail() {
   useEffect(() => {
       const fetchUser = async () => {
           try {
-              const userData = await models.userModel(userId);
+              const userData =  await fetchModel(`http://localhost:8081/api/user/${userId}`)
               setUser(userData);
+              console.log(userData);
           } catch (error) {
               console.error('Error fetching user:', error);
           }
